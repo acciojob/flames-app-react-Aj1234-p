@@ -4,24 +4,56 @@ function App(){
   const [text1,setText1] = useState("");
   const [text2,setText2] = useState("");
   const [answer,displayAnswer] = useState("");
-  function calculateBestRelationship(){
-     const firstText = text1.toLowerCase(), secondText = text2.toLowerCase();
-     const freq1 = new Array(26).fill(0);
-     const freq2 = new Array(26).fill(0);
-     for(let i=0;i<firstText.length;i++){
-       let ch = firstText.charCodeAt(i)-'a'.charCodeAt(0);
-       freq1[ch]++;
+  function calculateBestRelationship(){    
+     const map1 = new Map();
+     const map2 = new Map();
+     for(let i=0;i<text1.length;i++){
+      map1.set(text1[i], map1.get(text1[i])+1 || 1);
      }
-     for(let i=0;i<secondText.length;i++){
-         let ch = secondText.charCodeAt(i)-'a'.charCodeAt(0);
-         freq2[ch]++;
+     for(let i=0; i<text2.length; i++){
+      map2.set(text2[i], map2.get(text2[i])+1 || 1);
      }
-     let sum = 0;
-     for(let i=0;i<freq1.length;i++){
-      sum = sum + Math.abs(freq1[i]-freq2[i]);
+     for(let i=0;i<text1.length;i++){
+      let ch = text1[i];
+      if(map2.has(ch)){
+        const count = map2.get(ch);
+        map2.set(ch,count-1);
+        if(count-1<=0) map2.delete(ch);
+      }
      }
+     for(let i=0;i<text2.length;i++){
+       let ch = text2[i];
+      if(map1.has(ch)){
+        const count = map1.get(ch);
+        map1.set(ch,count-1);
+        if(count-1<=0) map1.delete(ch);
+      }
+    }
+    let newText1 = "", newText2 = "";
+    for(const [key,value] of map1){
+      if(value===1)
+         newText1+=key;
+      else{
+        for(let i=0;i<value;i++){
+          newText1+=key;
+        }
+      }
+     }
+    for(const [key,value] of map2){
+      if(value===1)
+         newText2+=key;
+      else{
+        for(let i=0;i<value;i++){
+          newText2+=key;
+        }
+      }
+    }
+     let sum = newText1.length+newText2.length;
      let mod = sum%6;
-     displayAnswer(res[mod-1]); 
+     if(mod>0)
+     displayAnswer(res[mod-1]);
+    else
+      displayAnswer(res[mod]);
   }
   function clearEverything(){
       setText1("");
